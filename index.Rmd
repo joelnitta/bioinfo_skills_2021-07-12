@@ -86,7 +86,7 @@ class: center middle
 
 --
 
-.big[`r ji("heavy large circle")`「なるべく再現しやすいようにする」]
+.big[`r ji("heavy large circle")`**「なるべく再現しやすいようにする」**]
 
 
 ---
@@ -117,6 +117,8 @@ class: center middle
   - 誰でも（将来の自分を含めて）再現できる（コンテナを使う）
 
 <img src="images/grad-arrow.png" style="position:absolute; left:75%; top:22%; width:auto; max-height:65%">
+<div style="position:absolute; left:83%; top:22%">再現しづらい</div>
+<div style="position:absolute; left:85%; top:80%">再現しやすい</div>
 
 ---
 ## 再現性の要素
@@ -135,6 +137,8 @@ class: center middle
   - **誰でも（将来の自分を含めて）再現できる（コンテナを使う）**
 
 <img src="images/grad-arrow.png" style="position:absolute; left:75%; top:22%; width:auto; max-height:65%">
+<div style="position:absolute; left:83%; top:22%">再現しづらい</div>
+<div style="position:absolute; left:85%; top:80%">再現しやすい</div>
 
 ---
 class: center middle
@@ -304,5 +308,74 @@ class: center middle
 
 イメージ：pythonのconda、virtualenvみたいなパケージ管理システム
 
+---
+## `renv`パケージについて
 
+Rのデフォルト設定では、全てのパッケージは**同じ（プロジェクト意外の）場所**に保管される（「ライブラリー」と呼ばれる）
 
+```{r default-lib-show, eval = FALSE}
+.libPaths()
+```
+
+```{r default-lib-hide, echo = FALSE}
+default_lib_loc <- "/Library/Frameworks/R.framework/Versions/4.1/Resources/library"
+```
+
+```{r print-default-lib, echo = FALSE}
+default_lib_loc
+```
+
+---
+## `renv`パケージについて
+
+`renv`を使うと、各プロジェクトが**そのプロジェクトだけのライブラリー**を持つ
+
+```{r renv-lib-show}
+.libPaths()
+```
+
+---
+## `renv`の重要なコマンド：
+
+`renv::init()`: プロジェクトのライブラリーを作る
+
+`renv::snapshot()`：ライブラリーの現状を`renv.lock`ファイルに記録する
+
+`renv::restore()`：`renv.lock`からライブラリーを復元する
+
+---
+## `renv.lock`ファイルの中身
+
+.pull-left[
+- パッケージ名
+- バージョン
+- 由来
+- ハッシュ
+
+### 大事：`renv.lock`をgitで保存(コミット)する
+
+]
+
+.pull-right[
+```
+{
+  "R": {
+    "Version": "4.1.0",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://cran.rstudio.com"
+      }
+    ]
+  },
+  "Packages": {
+    "R6": {
+      "Package": "R6",
+      "Version": "2.5.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "b203113193e70978a696b2809525649d"
+    }
+...
+```
+]

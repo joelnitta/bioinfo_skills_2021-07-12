@@ -64,7 +64,7 @@ class: center middle
 
 --
 
-.big[⭕「なるべく再現しやすいようにする」]
+.big[⭕**「なるべく再現しやすいようにする」**]
 
 
 ---
@@ -95,6 +95,8 @@ class: center middle
   - 誰でも（将来の自分を含めて）再現できる（コンテナを使う）
 
 &lt;img src="images/grad-arrow.png" style="position:absolute; left:75%; top:22%; width:auto; max-height:65%"&gt;
+&lt;div style="position:absolute; left:83%; top:22%"&gt;再現しづらい&lt;/div&gt;
+&lt;div style="position:absolute; left:85%; top:80%"&gt;再現しやすい&lt;/div&gt;
 
 ---
 ## 再現性の要素
@@ -113,6 +115,8 @@ class: center middle
   - **誰でも（将来の自分を含めて）再現できる（コンテナを使う）**
 
 &lt;img src="images/grad-arrow.png" style="position:absolute; left:75%; top:22%; width:auto; max-height:65%"&gt;
+&lt;div style="position:absolute; left:83%; top:22%"&gt;再現しづらい&lt;/div&gt;
+&lt;div style="position:absolute; left:85%; top:80%"&gt;再現しやすい&lt;/div&gt;
 
 ---
 class: center middle
@@ -166,7 +170,7 @@ here::here()
 ```
 
 ```
-## [1] "/Users/joelnitta/repos/bioinfo_skills_2021-07-09"
+## [1] "/Users/joelnitta/repos/bioinfo_skills_2021-07-12"
 ```
 
 
@@ -175,7 +179,7 @@ here::here("nested/folder/file")
 ```
 
 ```
-## [1] "/Users/joelnitta/repos/bioinfo_skills_2021-07-09/nested/folder/file"
+## [1] "/Users/joelnitta/repos/bioinfo_skills_2021-07-12/nested/folder/file"
 ```
 
 .footnote[**\*ドッカーをマウントする時、Rmarkdownに使うファイルのパスを指定する時**]
@@ -271,18 +275,16 @@ system("ls")
 
 
 ```
-## bioinfo_skills_2021-07-09.Rproj
+## bioinfo_skills_2021-07-12.Rproj
 ## data
 ## images
 ## index.Rmd
 ## index.html
 ## index_files
 ## libs
-## my_workflow_files
+## packages_dev.R
 ## renv
 ## renv.lock
-## test.Rmd
-## test.html
 ## xaringan-themer.css
 ```
 
@@ -323,8 +325,83 @@ class: center middle
 
 イメージ：pythonのconda、virtualenvみたいなパケージ管理システム
 
+---
+## `renv`パケージについて
+
+Rのデフォルト設定では、全てのパッケージは**同じ（プロジェクト意外の）場所**に保管される（「ライブラリー」と呼ばれる）
 
 
+```r
+.libPaths()
+```
+
+
+
+
+```
+## [1] "/Library/Frameworks/R.framework/Versions/4.1/Resources/library"
+```
+
+---
+## `renv`パケージについて
+
+`renv`を使うと、各プロジェクトが**そのプロジェクトだけのライブラリー**を持つ
+
+
+```r
+.libPaths()
+```
+
+```
+## [1] "/Users/joelnitta/repos/bioinfo_skills_2021-07-12/renv/library/R-4.1/x86_64-apple-darwin17.0"
+## [2] "/private/var/folders/8c/xp3x28zx3fd3llvggl2y17h00000gn/T/RtmpWNdgGr/renv-system-library"
+```
+
+---
+## `renv`の重要なコマンド：
+
+`renv::init()`: プロジェクトのライブラリーを作る
+
+`renv::snapshot()`：ライブラリーの現状を`renv.lock`ファイルに記録する
+
+`renv::restore()`：`renv.lock`からライブラリーを復元する
+
+---
+## `renv.lock`ファイルの中身
+
+.pull-left[
+- パッケージ名
+- バージョン
+- 由来
+- ハッシュ
+
+### 大事：`renv.lock`をgitで保存(コミット)する
+
+]
+
+.pull-right[
+```
+{
+  "R": {
+    "Version": "4.1.0",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://cran.rstudio.com"
+      }
+    ]
+  },
+  "Packages": {
+    "R6": {
+      "Package": "R6",
+      "Version": "2.5.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "b203113193e70978a696b2809525649d"
+    }
+...
+```
+]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
