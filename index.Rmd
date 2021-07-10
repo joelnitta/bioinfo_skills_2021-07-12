@@ -116,6 +116,8 @@ class: center middle
   - 全てのソフトウエアのバージョンを記述
   - 誰でも（将来の自分を含めて）再現できる（コンテナを使う）
 
+<img src="images/grad-arrow.png" style="position:absolute; left:75%; top:22%; width:auto; max-height:65%">
+
 ---
 ## 再現性の要素
 
@@ -131,10 +133,9 @@ class: center middle
 - **解析環境**
   - 全てのソフトウエアのバージョンを記述
   - **誰でも（将来の自分を含めて）再現できる（コンテナを使う）**
-]
 
-<!-- ![:abs 30%, 50%, 0%](images/grad-arrow.png) -->
-]
+<img src="images/grad-arrow.png" style="position:absolute; left:75%; top:22%; width:auto; max-height:65%">
+
 ---
 class: center middle
 
