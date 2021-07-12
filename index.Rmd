@@ -1,11 +1,13 @@
 ---
-title: "上級R編"
-subtitle: "私のベストプラクティス"
+title: "R上級編"
+subtitle: "「私のベストプラクティス」"
 author: 
   - "ニッタ ジョエル"
+  - "https://joelnitta.github.io/bioinfo_skills_2021-07-12"
 date: '`r Sys.Date()`'
 output:
   xaringan::moon_reader:
+    seal: false
     css: xaringan-themer.css
     nature:
       slideNumberFormat: "%current%"
@@ -16,7 +18,7 @@ output:
 editor_options: 
   chunk_output_type: console
 ---
-class: inverse center middle
+class: title-slide
 
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
@@ -29,20 +31,27 @@ knitr::opts_chunk$set(
   warning = FALSE,
   hiline = TRUE
 )
+library(xaringanthemer)
+library(emo)
+library(flipbookr)
+library(tidyverse)
 ```
 
 ```{r xaringan-themer, include=FALSE, warning=FALSE}
-library(xaringanthemer)
-library(emo)
-
 style_duo_accent(
+  title_slide_text_color = "white",
   primary_color = "#1381B0",
   secondary_color = "#FF961C",
   inverse_header_color = "#FFFFFF",
   header_font_google = google_font("Noto Sans JP"),
   text_font_google   = google_font("Mplus 1p"),
   code_font_google   = google_font("Droid Mono"),
-  text_font_size = "1.2rem"
+  text_font_size = "1.2rem",
+  text_slide_number_font_size = "1.1rem",
+  extra_css = list(
+    ".title-slide h1" = list("font-family" = "Mplus 1p"),
+    ".title-slide a, .title-slide a > code" = list("color" = "#FFFFFF")
+  )
 )
 ```
 
@@ -53,6 +62,75 @@ xaringanExtra::use_extra_styles(
   mute_unhighlighted_code = TRUE 
 )
 ```
+
+# R上級編
+
+## 私のベストプラクティス
+
+### ニッタ ジョエル
+
+「バイオインフォマティクスデータスキル」輪読会 21.07.12
+
+.footnote[slides: https://joelnitta.github.io/bioinfo_skills_2021-07-12<br>source: https://github.com/joelnitta/bioinfo_skills_2021-07-12]
+
+---
+## その前に：鈴木さんのdplyrのお悩み相談
+
+`dplyr`を初め、Rにとって**縦長データの方が扱いやすい**ことが多い
+
+今の形：幅広い
+
+```{r read-suzuki-data, message = FALSE, warning = FALSE, rows.print=6}
+trait_data <- read_csv("data/repData0001_5traits_motility_taxonomy_condensed_traits_GTDB.csv")
+
+print(trait_data, n = 6)
+```
+
+---
+`r chunk_reveal("suzuki-data-transform", break_type = "user", title = "## 縦長にすると扱いやすくなります")`
+
+```{r set-width, include = FALSE}
+# Tweak tibble width when printing so it doesn't run off the page
+tbl_width_orig <- getOption("tibble.width")
+options(tibble.width = 65)
+```
+
+```{r suzuki-data-transform, include = FALSE}
+trait_data %>%  #BREAK
+  select(cell_shape:sporulation) %>%  #BREAK
+  pivot_longer(
+    names_to = "trait", 
+    values_to = "value", 
+    everything()) %>% #BREAK
+  group_by(trait) %>%
+  summarize(
+    n_states = n_distinct(value)
+  )
+```
+
+---
+`r chunk_reveal("suzuki-data-transform-2", break_type = "user", title = "## 縦長にすると扱いやすくなります")`
+
+```{r suzuki-data-transform-2, include = FALSE}
+trait_data %>%
+  select(cell_shape:sporulation) %>%
+  pivot_longer(
+    names_to = "trait", 
+    values_to = "value", 
+    everything()) %>% #BREAK
+  group_by(trait) %>%
+  count(value) %>%
+  print(n = Inf)
+```
+
+```{r return-width, include = FALSE}
+# Return tibble width to default
+tbl_width_orig <- getOption("tibble.width")
+options(tibble.width = tbl_width_orig)
+```
+
+---
+class: inverse center middle
 
 <style>
 .big {
@@ -164,11 +242,26 @@ class: center middle
 ---
 ## Rプロジェクトを使いましょう！
 
-`r ji("x")` `setwd("joels_computer/projects/kato_daphnia")`←自分のパソコンにしか<br>存在しないパス
+`r ji("x")` `setwd("joels_computer/analysis/project")`←自分のパソコンにしか<br>存在しないパス
 
-`r ji("heavy large circle")` `kato_daphnia.Rproj`をクリック
+`r ji("heavy large circle")` `project.Rproj`をクリック
 
 .center[![List of folders and an .Rproj file](images/rpoj_file.png)]
+
+---
+## その前に: デフォルト設定を変えましょう
+
+.pull-left[
+Tools → Global Options...
+- 必ず**きれいな状態**でRが立ち上がるようにする
+- そうしないと、前のセッションから<br>オブジェクトが環境に残ってしまう
+- コマンドライン：
+```
+R --no-save --no-restore-data
+```
+]
+
+<img src="https://rstats.wtf/img/rstudio-workspace.png" style="position:absolute; left:55%; width:auto; max-height:70%">
 
 ---
 ## Rプロジェクトを使いましょう！
@@ -177,12 +270,30 @@ class: center middle
 2. "New Directory"をクリック
 3. "Empty Project"をクリック
 4. プロジェクトを保存するディレクトリの名前を入力
-5. "Create Project" ボタンをクリック
+5. "Create Project" ボタンをクリック**（"Use Git"の選択）**
 
+---
+## RStudioでgitを使う
+
+参考：**Happy Git and GitHub for the useR**　https://happygitwithr.com/
+
+.pull-left[
+**Rプロジェクトでないと使えない**
+
+- "Create Project" ボタンをクリック<br>**（"Use Git"の選択）**
+
+- "Environment", "History"の隣に"Git"が<br>現れる
+
+- 問題が起こったら：https://happygitwithr.com/rstudio-see-git.html
+]
+
+.pull-right[
+<img src="images/git-tab.png" style="width:auto; max-height:65%">
+]
 ---
 ## `here`パケージについて
 
-Rプロジェクトと相対パスを使えば、絶対パスを指定する必要は基本的にありません。
+**Rプロジェクト**と**相対パス**を使えば、絶対パスを指定する必要は基本的にありません。
 
 が、**どうしても絶対パスが必要になった時\***は`here()`を使いましょう：
 
@@ -191,7 +302,7 @@ here::here()
 ```
 
 ```{r here-example-2}
-here::here("nested/folder/file")
+here::here("nested", "file")
 ```
 
 .footnote[**\*ドッカーをマウントする時、Rmarkdownに使うファイルのパスを指定する時**]
@@ -199,16 +310,22 @@ here::here("nested/folder/file")
 ---
 ## `targets`パケージについて
 
+https://github.com/ropensci/targets
+
+<img src="https://raw.githubusercontent.com/ropensci/targets/main/man/figures/logo.png" style="position:absolute; left:75%; top:10%; width:auto; max-height:35%">
+
 イメージ：Rの`makefile`
 
 ###「バイオインフォ」12.3（p448）
 
-- 元々はソフトウエアをコンパイルするために生まれた
+- `makefile` =「元々はソフトウエアをコンパイルするために生まれた」
 
-- 自動的に依存関係を認識し、目的のファイルを作る
+- **自動的に依存関係を認識**し、目的のファイルを作る
 
 ---
 ## `targets`パケージについて
+
+<img src="https://raw.githubusercontent.com/ropensci/targets/main/man/figures/logo.png" style="position:absolute; left:75%; top:10%; width:auto; max-height:35%">
 
 ### プロジェクト構造
 
@@ -306,14 +423,22 @@ class: center middle
 ---
 ## `renv`パケージについて
 
+https://rstudio.github.io/renv/
+
 イメージ：pythonのconda、virtualenvみたいなパケージ管理システム
 
 ---
 ## `renv`パケージについて
 
-Rのデフォルト設定では、全てのパッケージは**同じ（プロジェクト意外の）場所**に保管される（「ライブラリー」と呼ばれる）
+Rのデフォルト設定では、全てのパッケージは**同じ（プロジェクト意外の）場所**に保管される<br>（「ライブラリー」と呼ばれる）
+
+```{r show-here}
+# hereでプロジェクトの場所を確認しよう
+here::here()
+```
 
 ```{r default-lib-show, eval = FALSE}
+# renvを使っていない状態
 .libPaths()
 ```
 
@@ -328,11 +453,36 @@ default_lib_loc
 ---
 ## `renv`パケージについて
 
+Rのデフォルト設定では、全てのパッケージは**同じ（プロジェクト意外の）場所**に保管される<br>（「ライブラリー」と呼ばれる）
+
+.center[
+<img src="https://kevinushey-2020-rstudio-conf.netlify.app/img/shared-library.svg" alt="drawing" height="250">
+]
+
+.footnote[https://kevinushey-2020-rstudio-conf.netlify.app/slides.html#47]
+
+---
+## `renv`パケージについて
+
 `renv`を使うと、各プロジェクトが**そのプロジェクトだけのライブラリー**を持つ
 
 ```{r renv-lib-show}
+# hereでプロジェクトの場所を確認しよう
+here::here()
+# renvを使っている状態
 .libPaths()
 ```
+
+---
+## `renv`パケージについて
+
+`renv`を使うと、各プロジェクトが**そのプロジェクトだけのライブラリー**を持つ
+<br><br>
+.center[
+<img src="https://kevinushey-2020-rstudio-conf.netlify.app/img/project-library.svg" alt="drawing" height="250">
+]
+
+.footnote[https://kevinushey-2020-rstudio-conf.netlify.app/slides.html#56]
 
 ---
 ## `renv`の重要なコマンド：
@@ -358,24 +508,129 @@ default_lib_loc
 
 .pull-right[
 ```
-{
-  "R": {
-    "Version": "4.1.0",
-    "Repositories": [
-      {
-        "Name": "CRAN",
-        "URL": "https://cran.rstudio.com"
-      }
-    ]
-  },
-  "Packages": {
-    "R6": {
-      "Package": "R6",
-      "Version": "2.5.0",
+　　"Rcpp": {
+      "Package": "Rcpp",
+      "Version": "1.0.7",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "b203113193e70978a696b2809525649d"
-    }
+      "Hash": "dab19adae4440ae55aa8a9d238b246bb"
+    },
+    "assertthat": {
+      "Package": "assertthat",
+      "Version": "0.2.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "50c838a310445e954bc13f26f26a6ecf"
+    },
 ...
 ```
 ]
+
+---
+## dockerの使い方
+
+### パターンその１
+
+一つのプロジェクト：一つのイメージ
+
+シチュエーション：主にRで完結する場合。`rocker`イメージで全部のパケージ（とRStudio）をインストール
+
+### パターンその２
+
+一つの解析ツール：一つのイメージ
+
+シチュエーション：他のソフトをたくさん使う場合。**特にバイオインフォのパイプライン。**
+
+---
+## パターンその１
+
+`Dockerfile` (例：https://github.com/joelnitta/moorea_filmies/blob/main/Dockerfile)
+
+```
+FROM rocker/verse:4.0.3
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+  libpoppler-cpp-dev
+
+# Modify Rprofile.site so renv uses /renv for project library
+RUN mkdir renv \
+  && echo 'Sys.setenv(RENV_PATHS_LIBRARY = "/renv")' >> /usr/local/lib/R/etc/Rprofile.site \
+  && mkdir tmp/project
+
+# Initialize a 'dummy' project and restore the renv library
+COPY ./renv.lock tmp/project
+WORKDIR tmp/project
+RUN Rscript -e 'install.packages("renv"); renv::consent(provided = TRUE); renv::settings$use.cache(FALSE); renv::init(bare = TRUE); renv::restore()'
+
+WORKDIR /home/rstudio/
+```
+
+---
+## パターンその１
+
+### 使い方
+
+```
+docker run --rm -v ${PWD}:/tmpdir -w /tmpdir user_name/image_name Rscript -e 'targets::tar_make()' 
+```
+
+---
+## パターンその２
+
+（もうすぐこのやり方についてhttps://joelnitta.com にてブログポストを書く予定）
+
+例：https://github.com/IwasakiLab/kato_daphnia
+
+.pull-left[
+- `conda`でRをインストール
+
+- `renv`でパケージ管理
+
+- Rから`docker`を呼び出す
+]
+
+.pull-right[
+`environment.yaml`
+```
+name: daphnia-env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-renv=0.12.*
+  - pandoc=2.11.4
+```
+]
+
+---
+## パターンその２
+
+### 使い方
+
+セットアップ
+```
+# conda環境を復元
+conda env create -f environment.yml
+# 環境に入る
+conda activate daphnia-env
+# Rパケージを復元
+Rscript -e 'renv::restore()'
+```
+
+実行
+```
+Rscript -e 'targets::tar_make()'
+```
+
+---
+## 参考文献
+
+[What They Forgot to Teach You About R](https://rstats.wtf/)
+
+[Happy Git with R](https://happygitwithr.com/)
+
+[Targets Manual](https://books.ropensci.org/targets/)
+
+[renv @ RStudioConf 2020](https://kevinushey-2020-rstudio-conf.netlify.app/)

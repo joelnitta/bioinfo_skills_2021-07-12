@@ -54,7 +54,7 @@
   --inverse-header-color: #FFFFFF;
   --inverse-link-color: #1381B0;
   --title-slide-background-color: #1381B0;
-  --title-slide-text-color: #000000;
+  --title-slide-text-color: white;
   --header-background-color: #1381B0;
   --header-background-text-color: #FFFFFF;
   --primary: #1381B0;
@@ -106,7 +106,7 @@ h1, h2, h3 {
 .remark-slide-number {
   color: #1381B0;
   opacity: 1;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
 }
 strong {
   font-weight: bold;
@@ -267,3 +267,12 @@ table.dataTable.hover tbody tr:hover, table.dataTable.display tbody tr:hover {
   background-color: var(--black);
 }
 
+
+
+/* Extra CSS */
+.title-slide h1 {
+  font-family: Mplus 1p;
+}
+.title-slide a, .title-slide a > code {
+  color: #FFFFFF;
+}

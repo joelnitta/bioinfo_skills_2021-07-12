@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>上級R編</title>
+    <title>R上級編</title>
     <meta charset="utf-8" />
     <meta name="author" content="ニッタ ジョエル" />
-    <meta name="date" content="2021-07-10" />
+    <meta name="author" content="https://joelnitta.github.io/bioinfo_skills_2021-07-12" />
+    <meta name="date" content="2021-07-12" />
     <script src="index_files/header-attrs/header-attrs.js"></script>
     <script src="index_files/fabric/fabric.min.js"></script>
     <link href="index_files/xaringanExtra-scribble/scribble.css" rel="stylesheet" />
@@ -15,22 +16,356 @@
   </head>
   <body>
     <textarea id="source">
-class: center, middle, inverse, title-slide
 
-# 上級R編
+class: title-slide
+
+
+
+
+
+
+
+# R上級編
+
 ## 私のベストプラクティス
+
 ### ニッタ ジョエル
-### 2021-07-10
+
+「バイオインフォマティクスデータスキル」輪読会 21.07.12
+
+.footnote[slides: https://joelnitta.github.io/bioinfo_skills_2021-07-12&lt;br&gt;source: https://github.com/joelnitta/bioinfo_skills_2021-07-12]
 
 ---
+## その前に：鈴木さんのdplyrのお悩み相談
 
+`dplyr`を初め、Rにとって**縦長データの方が扱いやすい**ことが多い
+
+今の形：幅広い
+
+
+```r
+trait_data &lt;- read_csv("data/repData0001_5traits_motility_taxonomy_condensed_traits_GTDB.csv")
+
+print(trait_data, n = 6)
+```
+
+```
+## # A tibble: 10,793 x 19
+##      X1  tax_id species_tax_id data_source org_name        ref_id
+##   &lt;dbl&gt;   &lt;dbl&gt;          &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;            &lt;dbl&gt;
+## 1     1  258515         258515 fierer      Acetanaerobact…   1748
+## 2     2  483199         483199 fierer      Acetobacter fa…   1749
+## 3     3  431306         431306 fierer      Acetobacter gh…   1750
+## 4     4  343013         343013 fierer      Acidovorax cae…   1759
+## 5     5  592050         592050 fierer      Acidovorax soli   1760
+## 6     6 1177982        1177982 fierer      Acidovorax wau…   1761
+## # … with 10,787 more rows, and 13 more variables:
+## #   superkingdom &lt;chr&gt;, phylum &lt;chr&gt;, class &lt;chr&gt;, order &lt;chr&gt;,
+## #   family &lt;chr&gt;, genus &lt;chr&gt;, species &lt;chr&gt;,
+## #   scidata_taxonomy &lt;chr&gt;, cell_shape &lt;chr&gt;, motility &lt;chr&gt;,
+## #   gram_stain &lt;chr&gt;, metabolism &lt;chr&gt;, sporulation &lt;chr&gt;
+```
+
+---
+count: false
+ 
+## 縦長にすると扱いやすくなります
+.panel1-suzuki-data-transform-user[
+
+```r
+*trait_data
+```
+]
+ 
+.panel2-suzuki-data-transform-user[
+
+```
+## # A tibble: 10,793 x 19
+##       X1  tax_id species_tax_id data_source org_name       ref_id
+##    &lt;dbl&gt;   &lt;dbl&gt;          &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;           &lt;dbl&gt;
+##  1     1  258515         258515 fierer      Acetanaerobac…   1748
+##  2     2  483199         483199 fierer      Acetobacter f…   1749
+##  3     3  431306         431306 fierer      Acetobacter g…   1750
+##  4     4  343013         343013 fierer      Acidovorax ca…   1759
+##  5     5  592050         592050 fierer      Acidovorax so…   1760
+##  6     6 1177982        1177982 fierer      Acidovorax wa…   1761
+##  7     7  262668         262668 fierer      Acinetobacter…   1762
+##  8     8 1219383        1219383 fierer      Acinetobacter…   1764
+##  9     9  756892         756892 fierer      Acinetobacter…   1765
+## 10    10 1226327        1226327 fierer      Acinetobacter…   1766
+## # … with 10,783 more rows, and 13 more variables:
+## #   superkingdom &lt;chr&gt;, phylum &lt;chr&gt;, class &lt;chr&gt;, order &lt;chr&gt;,
+## #   family &lt;chr&gt;, genus &lt;chr&gt;, species &lt;chr&gt;,
+## #   scidata_taxonomy &lt;chr&gt;, cell_shape &lt;chr&gt;, motility &lt;chr&gt;,
+## #   gram_stain &lt;chr&gt;, metabolism &lt;chr&gt;, sporulation &lt;chr&gt;
+```
+]
+
+---
+count: false
+ 
+## 縦長にすると扱いやすくなります
+.panel1-suzuki-data-transform-user[
+
+```r
+trait_data %&gt;%
+* select(cell_shape:sporulation)
+```
+]
+ 
+.panel2-suzuki-data-transform-user[
+
+```
+## # A tibble: 10,793 x 5
+##    cell_shape    motility gram_stain metabolism       sporulation
+##    &lt;chr&gt;         &lt;chr&gt;    &lt;chr&gt;      &lt;chr&gt;            &lt;chr&gt;      
+##  1 bacillus      yes      positive   anaerobic        no         
+##  2 coccobacillus yes      negative   obligate aerobic no         
+##  3 bacillus      yes      negative   obligate aerobic &lt;NA&gt;       
+##  4 bacillus      yes      negative   facultative      no         
+##  5 bacillus      no       &lt;NA&gt;       aerobic          &lt;NA&gt;       
+##  6 bacillus      yes      &lt;NA&gt;       obligate aerobic &lt;NA&gt;       
+##  7 coccobacillus no       negative   &lt;NA&gt;             no         
+##  8 coccobacillus no       &lt;NA&gt;       &lt;NA&gt;             no         
+##  9 coccobacillus no       negative   &lt;NA&gt;             no         
+## 10 coccobacillus no       &lt;NA&gt;       &lt;NA&gt;             &lt;NA&gt;       
+## # … with 10,783 more rows
+```
+]
+
+---
+count: false
+ 
+## 縦長にすると扱いやすくなります
+.panel1-suzuki-data-transform-user[
+
+```r
+trait_data %&gt;%
+  select(cell_shape:sporulation) %&gt;%
+* pivot_longer(
+*   names_to = "trait",
+*   values_to = "value",
+*   everything())
+```
+]
+ 
+.panel2-suzuki-data-transform-user[
+
+```
+## # A tibble: 53,965 x 2
+##    trait       value           
+##    &lt;chr&gt;       &lt;chr&gt;           
+##  1 cell_shape  bacillus        
+##  2 motility    yes             
+##  3 gram_stain  positive        
+##  4 metabolism  anaerobic       
+##  5 sporulation no              
+##  6 cell_shape  coccobacillus   
+##  7 motility    yes             
+##  8 gram_stain  negative        
+##  9 metabolism  obligate aerobic
+## 10 sporulation no              
+## # … with 53,955 more rows
+```
+]
+
+---
+count: false
+ 
+## 縦長にすると扱いやすくなります
+.panel1-suzuki-data-transform-user[
+
+```r
+trait_data %&gt;%
+  select(cell_shape:sporulation) %&gt;%
+  pivot_longer(
+    names_to = "trait",
+    values_to = "value",
+    everything()) %&gt;%
+* group_by(trait) %&gt;%
+* summarize(
+*   n_states = n_distinct(value)
+* )
+```
+]
+ 
+.panel2-suzuki-data-transform-user[
+
+```
+## # A tibble: 5 x 2
+##   trait       n_states
+##   &lt;chr&gt;          &lt;int&gt;
+## 1 cell_shape        14
+## 2 gram_stain         3
+## 3 metabolism         7
+## 4 motility           3
+## 5 sporulation        3
+```
+]
+
+&lt;style&gt;
+.panel1-suzuki-data-transform-user {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-suzuki-data-transform-user {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-suzuki-data-transform-user {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+
+
+---
+count: false
+ 
+## 縦長にすると扱いやすくなります
+.panel1-suzuki-data-transform-2-user[
+
+```r
+*trait_data %&gt;%
+* select(cell_shape:sporulation) %&gt;%
+* pivot_longer(
+*   names_to = "trait",
+*   values_to = "value",
+*   everything())
+```
+]
+ 
+.panel2-suzuki-data-transform-2-user[
+
+```
+## # A tibble: 53,965 x 2
+##    trait       value           
+##    &lt;chr&gt;       &lt;chr&gt;           
+##  1 cell_shape  bacillus        
+##  2 motility    yes             
+##  3 gram_stain  positive        
+##  4 metabolism  anaerobic       
+##  5 sporulation no              
+##  6 cell_shape  coccobacillus   
+##  7 motility    yes             
+##  8 gram_stain  negative        
+##  9 metabolism  obligate aerobic
+## 10 sporulation no              
+## # … with 53,955 more rows
+```
+]
+
+---
+count: false
+ 
+## 縦長にすると扱いやすくなります
+.panel1-suzuki-data-transform-2-user[
+
+```r
+trait_data %&gt;%
+  select(cell_shape:sporulation) %&gt;%
+  pivot_longer(
+    names_to = "trait",
+    values_to = "value",
+    everything()) %&gt;%
+* group_by(trait) %&gt;%
+* count(value) %&gt;%
+* print(n = Inf)
+```
+]
+ 
+.panel2-suzuki-data-transform-2-user[
+
+```
+## # A tibble: 30 x 3
+## # Groups:   trait [5]
+##    trait       value                  n
+##    &lt;chr&gt;       &lt;chr&gt;              &lt;int&gt;
+##  1 cell_shape  bacillus            3586
+##  2 cell_shape  branced                1
+##  3 cell_shape  coccobacillus        121
+##  4 cell_shape  coccus               524
+##  5 cell_shape  filament             254
+##  6 cell_shape  fusiform               2
+##  7 cell_shape  irregular              4
+##  8 cell_shape  pleomorphic           12
+##  9 cell_shape  spindle                1
+## 10 cell_shape  spiral               133
+## 11 cell_shape  square                 1
+## 12 cell_shape  star                   1
+## 13 cell_shape  vibrio               109
+## 14 cell_shape  &lt;NA&gt;                6044
+## 15 gram_stain  negative            4143
+## 16 gram_stain  positive            2726
+## 17 gram_stain  &lt;NA&gt;                3924
+## 18 metabolism  aerobic             2007
+## 19 metabolism  anaerobic           1022
+## 20 metabolism  facultative          409
+## 21 metabolism  microaerophilic      967
+## 22 metabolism  obligate aerobic     666
+## 23 metabolism  obligate anaerobic    33
+## 24 metabolism  &lt;NA&gt;                5689
+## 25 motility    no                  2304
+## 26 motility    yes                 2177
+## 27 motility    &lt;NA&gt;                6312
+## 28 sporulation no                  3712
+## 29 sporulation yes                  818
+## 30 sporulation &lt;NA&gt;                6263
+```
+]
+
+&lt;style&gt;
+.panel1-suzuki-data-transform-2-user {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-suzuki-data-transform-2-user {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-suzuki-data-transform-2-user {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+
+
+---
 class: inverse center middle
-
-
-
-
-
-
 
 &lt;style&gt;
 .big {
@@ -142,11 +477,26 @@ class: center middle
 ---
 ## Rプロジェクトを使いましょう！
 
-❌ `setwd("joels_computer/projects/kato_daphnia")`←自分のパソコンにしか&lt;br&gt;存在しないパス
+❌ `setwd("joels_computer/analysis/project")`←自分のパソコンにしか&lt;br&gt;存在しないパス
 
-⭕ `kato_daphnia.Rproj`をクリック
+⭕ `project.Rproj`をクリック
 
 .center[![List of folders and an .Rproj file](images/rpoj_file.png)]
+
+---
+## その前に: デフォルト設定を変えましょう
+
+.pull-left[
+Tools → Global Options...
+- 必ず**きれいな状態**でRが立ち上がるようにする
+- そうしないと、前のセッションから&lt;br&gt;オブジェクトが環境に残ってしまう
+- コマンドライン：
+```
+R --no-save --no-restore-data
+```
+]
+
+&lt;img src="https://rstats.wtf/img/rstudio-workspace.png" style="position:absolute; left:55%; width:auto; max-height:70%"&gt;
 
 ---
 ## Rプロジェクトを使いましょう！
@@ -155,12 +505,30 @@ class: center middle
 2. "New Directory"をクリック
 3. "Empty Project"をクリック
 4. プロジェクトを保存するディレクトリの名前を入力
-5. "Create Project" ボタンをクリック
+5. "Create Project" ボタンをクリック**（"Use Git"の選択）**
 
+---
+## RStudioでgitを使う
+
+参考：**Happy Git and GitHub for the useR**　https://happygitwithr.com/
+
+.pull-left[
+**Rプロジェクトでないと使えない**
+
+- "Create Project" ボタンをクリック&lt;br&gt;**（"Use Git"の選択）**
+
+- "Environment", "History"の隣に"Git"が&lt;br&gt;現れる
+
+- 問題が起こったら：https://happygitwithr.com/rstudio-see-git.html
+]
+
+.pull-right[
+&lt;img src="images/git-tab.png" style="width:auto; max-height:65%"&gt;
+]
 ---
 ## `here`パケージについて
 
-Rプロジェクトと相対パスを使えば、絶対パスを指定する必要は基本的にありません。
+**Rプロジェクト**と**相対パス**を使えば、絶対パスを指定する必要は基本的にありません。
 
 が、**どうしても絶対パスが必要になった時\***は`here()`を使いましょう：
 
@@ -175,11 +543,11 @@ here::here()
 
 
 ```r
-here::here("nested/folder/file")
+here::here("nested", "file")
 ```
 
 ```
-## [1] "/Users/joelnitta/repos/bioinfo_skills_2021-07-12/nested/folder/file"
+## [1] "/Users/joelnitta/repos/bioinfo_skills_2021-07-12/nested/file"
 ```
 
 .footnote[**\*ドッカーをマウントする時、Rmarkdownに使うファイルのパスを指定する時**]
@@ -187,16 +555,22 @@ here::here("nested/folder/file")
 ---
 ## `targets`パケージについて
 
+https://github.com/ropensci/targets
+
+&lt;img src="https://raw.githubusercontent.com/ropensci/targets/main/man/figures/logo.png" style="position:absolute; left:75%; top:10%; width:auto; max-height:35%"&gt;
+
 イメージ：Rの`makefile`
 
 ###「バイオインフォ」12.3（p448）
 
-- 元々はソフトウエアをコンパイルするために生まれた
+- `makefile` =「元々はソフトウエアをコンパイルするために生まれた」
 
-- 自動的に依存関係を認識し、目的のファイルを作る
+- **自動的に依存関係を認識**し、目的のファイルを作る
 
 ---
 ## `targets`パケージについて
+
+&lt;img src="https://raw.githubusercontent.com/ropensci/targets/main/man/figures/logo.png" style="position:absolute; left:75%; top:10%; width:auto; max-height:35%"&gt;
 
 ### プロジェクト構造
 
@@ -306,7 +680,7 @@ run(
 ## [1] 0
 ## 
 ## $stdout
-## [1] ".\n..\nraw_data.csv\n"
+## [1] ".\n..\nraw_data.csv\nrepData0001_5traits_motility_taxonomy_condensed_traits_GTDB.csv\n"
 ## 
 ## $stderr
 ## [1] ""
@@ -323,15 +697,28 @@ class: center middle
 ---
 ## `renv`パケージについて
 
+https://rstudio.github.io/renv/
+
 イメージ：pythonのconda、virtualenvみたいなパケージ管理システム
 
 ---
 ## `renv`パケージについて
 
-Rのデフォルト設定では、全てのパッケージは**同じ（プロジェクト意外の）場所**に保管される（「ライブラリー」と呼ばれる）
+Rのデフォルト設定では、全てのパッケージは**同じ（プロジェクト意外の）場所**に保管される&lt;br&gt;（「ライブラリー」と呼ばれる）
 
 
 ```r
+# hereでプロジェクトの場所を確認しよう
+here::here()
+```
+
+```
+## [1] "/Users/joelnitta/repos/bioinfo_skills_2021-07-12"
+```
+
+
+```r
+# renvを使っていない状態
 .libPaths()
 ```
 
@@ -345,17 +732,49 @@ Rのデフォルト設定では、全てのパッケージは**同じ（プロ�
 ---
 ## `renv`パケージについて
 
+Rのデフォルト設定では、全てのパッケージは**同じ（プロジェクト意外の）場所**に保管される&lt;br&gt;（「ライブラリー」と呼ばれる）
+
+.center[
+&lt;img src="https://kevinushey-2020-rstudio-conf.netlify.app/img/shared-library.svg" alt="drawing" height="250"&gt;
+]
+
+.footnote[https://kevinushey-2020-rstudio-conf.netlify.app/slides.html#47]
+
+---
+## `renv`パケージについて
+
 `renv`を使うと、各プロジェクトが**そのプロジェクトだけのライブラリー**を持つ
 
 
 ```r
+# hereでプロジェクトの場所を確認しよう
+here::here()
+```
+
+```
+## [1] "/Users/joelnitta/repos/bioinfo_skills_2021-07-12"
+```
+
+```r
+# renvを使っている状態
 .libPaths()
 ```
 
 ```
 ## [1] "/Users/joelnitta/repos/bioinfo_skills_2021-07-12/renv/library/R-4.1/x86_64-apple-darwin17.0"
-## [2] "/private/var/folders/8c/xp3x28zx3fd3llvggl2y17h00000gn/T/RtmpWNdgGr/renv-system-library"
+## [2] "/private/var/folders/gp/h66562zx3ps986y5z2jzrc0h0000gn/T/RtmphcWUyb/renv-system-library"
 ```
+
+---
+## `renv`パケージについて
+
+`renv`を使うと、各プロジェクトが**そのプロジェクトだけのライブラリー**を持つ
+&lt;br&gt;&lt;br&gt;
+.center[
+&lt;img src="https://kevinushey-2020-rstudio-conf.netlify.app/img/project-library.svg" alt="drawing" height="250"&gt;
+]
+
+.footnote[https://kevinushey-2020-rstudio-conf.netlify.app/slides.html#56]
 
 ---
 ## `renv`の重要なコマンド：
@@ -381,27 +800,132 @@ Rのデフォルト設定では、全てのパッケージは**同じ（プロ�
 
 .pull-right[
 ```
-{
-  "R": {
-    "Version": "4.1.0",
-    "Repositories": [
-      {
-        "Name": "CRAN",
-        "URL": "https://cran.rstudio.com"
-      }
-    ]
-  },
-  "Packages": {
-    "R6": {
-      "Package": "R6",
-      "Version": "2.5.0",
+　　"Rcpp": {
+      "Package": "Rcpp",
+      "Version": "1.0.7",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "b203113193e70978a696b2809525649d"
-    }
+      "Hash": "dab19adae4440ae55aa8a9d238b246bb"
+    },
+    "assertthat": {
+      "Package": "assertthat",
+      "Version": "0.2.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "50c838a310445e954bc13f26f26a6ecf"
+    },
 ...
 ```
 ]
+
+---
+## dockerの使い方
+
+### パターンその１
+
+一つのプロジェクト：一つのイメージ
+
+シチュエーション：主にRで完結する場合。`rocker`イメージで全部のパケージ（とRStudio）をインストール
+
+### パターンその２
+
+一つの解析ツール：一つのイメージ
+
+シチュエーション：他のソフトをたくさん使う場合。**特にバイオインフォのパイプライン。**
+
+---
+## パターンその１
+
+`Dockerfile` (例：https://github.com/joelnitta/moorea_filmies/blob/main/Dockerfile)
+
+```
+FROM rocker/verse:4.0.3
+
+RUN apt-get update \
+  &amp;&amp; apt-get install -y --no-install-recommends \
+  libpoppler-cpp-dev
+
+# Modify Rprofile.site so renv uses /renv for project library
+RUN mkdir renv \
+  &amp;&amp; echo 'Sys.setenv(RENV_PATHS_LIBRARY = "/renv")' &gt;&gt; /usr/local/lib/R/etc/Rprofile.site \
+  &amp;&amp; mkdir tmp/project
+
+# Initialize a 'dummy' project and restore the renv library
+COPY ./renv.lock tmp/project
+WORKDIR tmp/project
+RUN Rscript -e 'install.packages("renv"); renv::consent(provided = TRUE); renv::settings$use.cache(FALSE); renv::init(bare = TRUE); renv::restore()'
+
+WORKDIR /home/rstudio/
+```
+
+---
+## パターンその１
+
+### 使い方
+
+```
+docker run --rm -v ${PWD}:/tmpdir -w /tmpdir user_name/image_name Rscript -e 'targets::tar_make()' 
+```
+
+---
+## パターンその２
+
+（もうすぐこのやり方についてhttps://joelnitta.com にてブログポストを書く予定）
+
+例：https://github.com/IwasakiLab/kato_daphnia
+
+.pull-left[
+- `conda`でRをインストール
+
+- `renv`でパケージ管理
+
+- Rから`docker`を呼び出す
+]
+
+.pull-right[
+`environment.yaml`
+```
+name: daphnia-env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-renv=0.12.*
+  - pandoc=2.11.4
+```
+]
+
+---
+## パターンその２
+
+### 使い方
+
+セットアップ
+```
+# conda環境を復元
+conda env create -f environment.yml
+# 環境に入る
+conda activate daphnia-env
+# Rパケージを復元
+Rscript -e 'renv::restore()'
+```
+
+実行
+```
+Rscript -e 'targets::tar_make()'
+```
+
+---
+## 参考文献
+
+[What They Forgot to Teach You About R](https://rstats.wtf/)
+
+[Happy Git with R](https://happygitwithr.com/)
+
+[Targets Manual](https://books.ropensci.org/targets/)
+
+[renv @ RStudioConf 2020](https://kevinushey-2020-rstudio-conf.netlify.app/)
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
