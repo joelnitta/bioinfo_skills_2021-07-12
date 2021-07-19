@@ -47,19 +47,18 @@ print(trait_data, n = 6)
 
 ```
 ## # A tibble: 10,793 x 19
-##      X1  tax_id species_tax_id data_source org_name        ref_id
-##   &lt;dbl&gt;   &lt;dbl&gt;          &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;            &lt;dbl&gt;
-## 1     1  258515         258515 fierer      Acetanaerobact…   1748
-## 2     2  483199         483199 fierer      Acetobacter fa…   1749
-## 3     3  431306         431306 fierer      Acetobacter gh…   1750
-## 4     4  343013         343013 fierer      Acidovorax cae…   1759
-## 5     5  592050         592050 fierer      Acidovorax soli   1760
-## 6     6 1177982        1177982 fierer      Acidovorax wau…   1761
-## # … with 10,787 more rows, and 13 more variables:
-## #   superkingdom &lt;chr&gt;, phylum &lt;chr&gt;, class &lt;chr&gt;, order &lt;chr&gt;,
-## #   family &lt;chr&gt;, genus &lt;chr&gt;, species &lt;chr&gt;,
-## #   scidata_taxonomy &lt;chr&gt;, cell_shape &lt;chr&gt;, motility &lt;chr&gt;,
-## #   gram_stain &lt;chr&gt;, metabolism &lt;chr&gt;, sporulation &lt;chr&gt;
+##      X1  tax_id species_tax_id data_source org_name   ref_id superkingdom phylum
+##   &lt;dbl&gt;   &lt;dbl&gt;          &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;        &lt;chr&gt; 
+## 1     1  258515         258515 fierer      Acetanaer…   1748 Bacteria     Firmi…
+## 2     2  483199         483199 fierer      Acetobact…   1749 Bacteria     Prote…
+## 3     3  431306         431306 fierer      Acetobact…   1750 Bacteria     Prote…
+## 4     4  343013         343013 fierer      Acidovora…   1759 Bacteria     Prote…
+## 5     5  592050         592050 fierer      Acidovora…   1760 Bacteria     Prote…
+## 6     6 1177982        1177982 fierer      Acidovora…   1761 Bacteria     Prote…
+## # … with 10,787 more rows, and 11 more variables: class &lt;chr&gt;, order &lt;chr&gt;,
+## #   family &lt;chr&gt;, genus &lt;chr&gt;, species &lt;chr&gt;, scidata_taxonomy &lt;chr&gt;,
+## #   cell_shape &lt;chr&gt;, motility &lt;chr&gt;, gram_stain &lt;chr&gt;, metabolism &lt;chr&gt;,
+## #   sporulation &lt;chr&gt;
 ```
 
 ---
@@ -77,23 +76,22 @@ count: false
 
 ```
 ## # A tibble: 10,793 x 19
-##       X1  tax_id species_tax_id data_source org_name       ref_id
-##    &lt;dbl&gt;   &lt;dbl&gt;          &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;           &lt;dbl&gt;
-##  1     1  258515         258515 fierer      Acetanaerobac…   1748
-##  2     2  483199         483199 fierer      Acetobacter f…   1749
-##  3     3  431306         431306 fierer      Acetobacter g…   1750
-##  4     4  343013         343013 fierer      Acidovorax ca…   1759
-##  5     5  592050         592050 fierer      Acidovorax so…   1760
-##  6     6 1177982        1177982 fierer      Acidovorax wa…   1761
-##  7     7  262668         262668 fierer      Acinetobacter…   1762
-##  8     8 1219383        1219383 fierer      Acinetobacter…   1764
-##  9     9  756892         756892 fierer      Acinetobacter…   1765
-## 10    10 1226327        1226327 fierer      Acinetobacter…   1766
-## # … with 10,783 more rows, and 13 more variables:
-## #   superkingdom &lt;chr&gt;, phylum &lt;chr&gt;, class &lt;chr&gt;, order &lt;chr&gt;,
-## #   family &lt;chr&gt;, genus &lt;chr&gt;, species &lt;chr&gt;,
-## #   scidata_taxonomy &lt;chr&gt;, cell_shape &lt;chr&gt;, motility &lt;chr&gt;,
-## #   gram_stain &lt;chr&gt;, metabolism &lt;chr&gt;, sporulation &lt;chr&gt;
+##       X1  tax_id species_tax_id data_source org_name  ref_id superkingdom phylum
+##    &lt;dbl&gt;   &lt;dbl&gt;          &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;        &lt;chr&gt; 
+##  1     1  258515         258515 fierer      Acetanae…   1748 Bacteria     Firmi…
+##  2     2  483199         483199 fierer      Acetobac…   1749 Bacteria     Prote…
+##  3     3  431306         431306 fierer      Acetobac…   1750 Bacteria     Prote…
+##  4     4  343013         343013 fierer      Acidovor…   1759 Bacteria     Prote…
+##  5     5  592050         592050 fierer      Acidovor…   1760 Bacteria     Prote…
+##  6     6 1177982        1177982 fierer      Acidovor…   1761 Bacteria     Prote…
+##  7     7  262668         262668 fierer      Acinetob…   1762 Bacteria     Prote…
+##  8     8 1219383        1219383 fierer      Acinetob…   1764 Bacteria     Prote…
+##  9     9  756892         756892 fierer      Acinetob…   1765 Bacteria     Prote…
+## 10    10 1226327        1226327 fierer      Acinetob…   1766 Bacteria     Prote…
+## # … with 10,783 more rows, and 11 more variables: class &lt;chr&gt;, order &lt;chr&gt;,
+## #   family &lt;chr&gt;, genus &lt;chr&gt;, species &lt;chr&gt;, scidata_taxonomy &lt;chr&gt;,
+## #   cell_shape &lt;chr&gt;, motility &lt;chr&gt;, gram_stain &lt;chr&gt;, metabolism &lt;chr&gt;,
+## #   sporulation &lt;chr&gt;
 ```
 ]
 
@@ -647,6 +645,7 @@ system("ls")
 ```
 ## bioinfo_skills_2021-07-12.Rproj
 ## bioinfo_skills_2021-07-12.pdf
+## bioinfo_skills_2021-07-19.pdf
 ## data
 ## images
 ## index.Rmd
@@ -723,7 +722,7 @@ ln -s ls /nfs_share/joelnitta/project_data/japan_ferns_biogeo/data_raw data_raw
 
 - シムボリックリンクの中身は空（元ファイルを指しているだけ）
 
-- （ホードリンクはファイルの中身をコピーするので、ディスクスペースを使ってしまう）
+- ~~（ホードリンクはファイルの中身をコピーするので、ディスクスペースを使ってしまう）~~
 
 - ドッカーはボリュームの外を指すリンクをフォローできない
 
@@ -800,7 +799,7 @@ here::here()
 
 ```
 ## [1] "/Users/joelnitta/repos/bioinfo_skills_2021-07-12/renv/library/R-4.1/x86_64-apple-darwin17.0"
-## [2] "/private/var/folders/gp/h66562zx3ps986y5z2jzrc0h0000gn/T/RtmpJ8BSIf/renv-system-library"
+## [2] "/private/var/folders/gp/h66562zx3ps986y5z2jzrc0h0000gn/T/RtmpQsA0nP/renv-system-library"
 ```
 
 ---
