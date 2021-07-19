@@ -56,7 +56,7 @@ style_duo_accent(
 ```
 
 ```{r xaringanExtra-scribble, echo=FALSE}
-xaringanExtra::use_scribble()
+# xaringanExtra::use_scribble()
 xaringanExtra::use_extra_styles(
   hover_code_line = TRUE,        
   mute_unhighlighted_code = TRUE 
@@ -415,6 +415,46 @@ run(
   wd = "data")
 ```
 
+
+---
+class: center middle
+
+# プロジェクトの整理
+
+---
+## シムボリックリンクについて
+
+プロジェクトディレクトリーに入り切れない・他のプロジェクトで同じデータを使いたい時は、<br>**シムボリックリンク**を使う
+
+```
+ln -s originial_file linked_file
+```
+
+- `-s`は「シムボリックリンク」を意味する
+
+- `ln`だけでは、「ハードリンク」を作る（あまり使わない）
+
+--
+
+例えば、
+
+```
+ln -s ls /nfs_share/joelnitta/project_data/japan_ferns_biogeo/data_raw data_raw
+```
+
+---
+## シムボリックリンクについて
+
+- シムボリックリンクを消しても元のファイルは消えない
+
+- 元のファイルの場所が変われば、シムボリックリンクは無効になる
+
+- シムボリックリンクの中身は空（元ファイルを指しているだけ）
+
+- （ホードリンクはファイルの中身をコピーするので、ディスクスペースを使ってしまう）
+
+- ドッカーはボリュームの外を指すリンクをフォローできない
+
 ---
 class: center middle
 
@@ -494,6 +534,16 @@ here::here()
 `renv::restore()`：`renv.lock`からライブラリーを復元する
 
 ---
+## パケージのインストール
+
+普通に`install.packages()`でいい
+
+あるいは、
+- CRAN: `renv::install("package")`
+- github: `renv::install("user_name/package")`
+- bioconductor: `renv::install("bioc::package")`
+
+---
 ## `renv.lock`ファイルの中身
 
 .pull-left[
@@ -525,6 +575,32 @@ here::here()
 ...
 ```
 ]
+
+---
+
+## global package cache
+
+プロジェクトがそれぞれのライブラリーを持っていると、**パッケージがダブった場合は効率が低い**
+
+global package cacheはこれは**解決します**
+
+.center[
+<img src="https://kevinushey-2020-rstudio-conf.netlify.app/img/package-cache.svg" alt="drawing" height="250">
+]
+
+.footnote[https://kevinushey-2020-rstudio-conf.netlify.app/slides.html#109]
+
+---
+
+## global package cache
+
+**デフォルトでオン**なので、使うには何もする必要ありません
+
+逆に**オフにしたい場合**（例えば、プロジェクトを違うサーバーに移動させる時）：
+
+```{r eval = FALSE}
+renv::settings$use.cache(FALSE)
+```
 
 ---
 ## dockerの使い方
